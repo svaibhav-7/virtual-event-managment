@@ -37,18 +37,20 @@ const Room = ({ roomId, username, setIsInRoom, socket }) => {
   }, [username]);
 
   // In Room.js
+  // Update the public meet link generation
   const [publicMeetLink, setPublicMeetLink] = useState("");
   useEffect(() => {
-    // For Glitch deployment, get the hostname from the browser
-    const hostname = window.location.hostname;
-    const protocol = window.location.protocol;
-    const port = window.location.port ? `:${window.location.port}` : '';
-
-    // Create the public link using the full URL
-    const fullUrl = `${protocol}//${hostname}${port}?roomId=${roomId}`;
+    // Get the server URL from the socket connection or environment
+    const serverUrl = socket?.io?.uri || window.location.origin;
+    
+    // Create the public link using the server URL
+    const fullUrl = `${serverUrl}?roomId=${roomId}`;
     setPublicMeetLink(fullUrl);
-
-  }, [roomId]);
+    
+    // Log connection info for debugging
+    console.log('Connected to server:', serverUrl);
+    console.log('Room link:', fullUrl);
+  }, [roomId, socket]);
 
   const voteInPoll = (pollIndex, optionIndex) => {
     const updatedPolls = [...polls];
