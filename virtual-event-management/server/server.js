@@ -47,97 +47,19 @@ const express = require("express");
 
   // CORS configuration
   app.use(cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+      origin: '*',  // Allow all origins
       methods: ['GET', 'POST'],
       credentials: true
   }));
 
   app.use(express.json());
-
-  // API routes
-  app.post('/api/signup', async (req, res) => {
-      try {
-          const { username, email, password } = req.body;
-          
-          if (!username || !email || !password) {
-              return res.status(400).json({ message: 'All fields are required' });
-          }
-
-          // Check if user already exists
-          const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-          if (existingUser) {
-              return res.status(400).json({ 
-                  message: existingUser.email === email ? 
-                      'User is already registered' : 
-                      'Username is already taken' 
-              });
-          }
-
-          // Hash password
-          const hashedPassword = await bcrypt.hash(password, 10);
-
-          // Create new user
-          const user = new User({
-              username,
-              email,
-              password: hashedPassword
-          });
-
-          await user.save();
-          res.status(201).json({ message: 'User created successfully' });
-      } catch (error) {
-          console.error('Signup error:', error);
-          if (error.name === 'MongoError' || error.name === 'MongoServerError') {
-              return res.status(503).json({ message: 'Database error. Please try again later.' });
-          }
-          res.status(500).json({ message: 'Error creating user' });
-      }
-  });
-
-  // Login endpoint
-  app.post('/api/login', async (req, res) => {
-      try {
-          const { email, password } = req.body;
-          
-          if (!email || !password) {
-              return res.status(400).json({ message: 'Email and password are required' });
-          }
-
-          // Find user by email
-          const user = await User.findOne({ email });
-          if (!user) {
-              return res.status(400).json({ message: 'Invalid email or password' });
-          }
-
-          // Compare password
-          const isValidPassword = await bcrypt.compare(password, user.password);
-          if (!isValidPassword) {
-              return res.status(400).json({ message: 'Invalid email or password' });
-          }
-
-          // Send success response with user data (excluding password)
-          res.status(200).json({
-              message: 'Login successful',
-              user: {
-                  id: user._id,
-                  username: user.username,
-                  email: user.email
-              }
-          });
-      } catch (error) {
-          console.error('Login error:', error);
-          if (error.name === 'MongoError' || error.name === 'MongoServerError') {
-              return res.status(503).json({ message: 'Database error. Please try again later.' });
-          }
-          res.status(500).json({ message: 'Error during login' });
-      }
-  });
+  app.use(express.static(path.join(__dirname, '../build')));
 
   // Socket.io setup
   const server = http.createServer(app);
   const io = new Server(server, {
       cors: {
-          origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+          origin: '*',  // Allow all origins
           methods: ["GET", "POST"],
           credentials: true
       }
@@ -178,7 +100,20 @@ const express = require("express");
       });
 
       socket.on("signal", ({ to, from, signal }) => {
-          io.to(to).emit("signal", { from, signal });
+          // Log signaling events for debugging
+          console.log(`[WebRTC] Signal type ${signal.type} from ${from} to ${to}`);
+          
+          // Add audio-specific debugging for offers and answers
+          if (signal.type === "offer" || signal.type === "answer") {
+              console.log(`[WebRTC] ${signal.type.toUpperCase()} contains audio: ${signal.sdp.includes('m=audio')}`);
+          }
+          
+          // Forward the signal with timestamp for debugging latency
+          io.to(to).emit("signal", { 
+              from, 
+              signal,
+              timestamp: Date.now()
+          });
       });
       socket.on('get-room-users', (roomId, callback) => {
           if (activeRooms[roomId]) {
@@ -230,6 +165,8 @@ const express = require("express");
   });
 
   const PORT = process.env.PORT || 3001;
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`Access locally via: http://localhost:${PORT}`);
+      console.log(`Access on your network via: http://${require('os').networkInterfaces()['Wi-Fi']?.[0]?.address || 'YOUR_IP_ADDRESS'}:${PORT}`);
   });

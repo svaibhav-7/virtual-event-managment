@@ -89,48 +89,57 @@ const Room = ({ roomId, username, setIsInRoom, socket }) => {
     }
     setIsInRoom(false);
   };
-  const toggleMic = async () => {
+  // Function to ensure audio tracks are properly set up
+  const setupAudioTracks = async () => {
     try {
-      if (!mediaStream) {
-        // Initialize with both audio and video streams if not exists
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          },
-          video: isCameraOn
-        });
-        setMediaStream(stream);
-        setIsMicOn(true);
-      } else {
-        const audioTracks = mediaStream.getAudioTracks();
-        if (audioTracks.length > 0) {
-          audioTracks.forEach((track) => {
-            track.enabled = !track.enabled;
-          });
-          setIsMicOn(!isMicOn);
-        } else {
-          // Add audio track if it doesn't exist
-          const audioStream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
-          });
-          const newStream = new MediaStream();
-          // Add existing video tracks
-          mediaStream.getVideoTracks().forEach(track => newStream.addTrack(track));
-          // Add new audio track
-          audioStream.getAudioTracks().forEach(track => newStream.addTrack(track));
-          setMediaStream(newStream);
-          setIsMicOn(true);
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 2
         }
+      });
+      
+      if (mediaStream) {
+        // Remove any existing audio tracks
+        const existingAudioTracks = mediaStream.getAudioTracks();
+        existingAudioTracks.forEach(track => mediaStream.removeTrack(track));
+        
+        // Add new audio tracks
+        audioStream.getAudioTracks().forEach(track => {
+          track.enabled = true;
+          mediaStream.addTrack(track);
+        });
+      } else {
+        setMediaStream(audioStream);
       }
+      
+      setIsMicOn(true);
+      
+      // Log audio track status
+      console.log('Audio tracks set up:', mediaStream?.getAudioTracks().map(track => ({
+        enabled: track.enabled,
+        muted: track.muted,
+        readyState: track.readyState
+      })));
     } catch (error) {
-      console.error("Microphone access error:", error);
-      alert("Could not access microphone. Please check your browser permissions and make sure your microphone is properly connected.");
+      console.error('Audio setup error:', error);
+      alert('Could not access microphone. Please check your permissions and connection.');
+    }
+  };
+
+  // Modify toggleMic to use the new setup function
+  const toggleMic = async () => {
+    if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+      await setupAudioTracks();
+    } else {
+      const audioTracks = mediaStream.getAudioTracks();
+      audioTracks.forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      setIsMicOn(!isMicOn);
     }
   };
   const toggleCamera = async () => {

@@ -15,9 +15,11 @@ function App() {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:3001', {
+    const serverUrl = process.env.REACT_APP_SERVER_URL || window.location.origin;
+    const newSocket = io(serverUrl, {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      transports: ['websocket', 'polling']
     });
 
     newSocket.on('connect', () => {

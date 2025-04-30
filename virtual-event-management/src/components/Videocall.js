@@ -552,7 +552,19 @@ const VideoCall = ({
   // Component for remote participant's video
   const ParticipantVideo = ({ user }) => (
     <div className={`participant ${activeSpeaker === user ? "active-speaker" : ""}`}>
-      <video className="video" autoPlay playsInline />
+      <video 
+        className="video" 
+        autoPlay 
+        playsInline 
+        data-user-id={user}
+        muted={false}
+      />
+      <audio 
+        autoPlay 
+        playsInline 
+        data-user-audio-id={user} 
+        muted={false}
+      />
       <div className="participant-info">
         <span>{user}</span>
         {raisedHands.includes(user) && (
@@ -625,19 +637,47 @@ const VideoCall = ({
         // Add local tracks to the peer connection
         if (mediaStream) {
           mediaStream.getTracks().forEach(track => {
+            console.log('Adding track to peer connection:', track.kind);
             peerConnection.addTrack(track, mediaStream);
           });
         }
 
+        // Handle remote tracks
+        peerConnection.ontrack = (event) => {
+          console.log('Received remote track:', event.track.kind);
+          const [remoteStream] = event.streams;
+          
+          // Find the remote video and audio elements
+          const remoteVideo = document.querySelector(`[data-user-id="${userId}"]`);
+          const remoteAudio = document.querySelector(`[data-user-audio-id="${userId}"]`);
+          
+          if (remoteStream) {
+            // Set up video
+            if (remoteVideo) {
+              remoteVideo.srcObject = new MediaStream([...remoteStream.getVideoTracks()]);
+              remoteVideo.volume = 0; // Mute video element since we're handling audio separately
+            }
+            
+            // Set up audio
+            if (remoteAudio) {
+              remoteAudio.srcObject = new MediaStream([...remoteStream.getAudioTracks()]);
+              remoteAudio.volume = 1.0;
+            }
+          }
+        };
+
         // Create and send offer
-        const offer = await peerConnection.createOffer();
+        const offer = await peerConnection.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true
+        });
         await peerConnection.setLocalDescription(offer);
         socket.emit("signal", {
           to: userId,
           from: socket.id,
           signal: { type: "offer", sdp: offer }
         });
-
+        
         // Handle ICE candidates
         peerConnection.onicecandidate = (event) => {
           if (event.candidate) {
@@ -646,16 +686,6 @@ const VideoCall = ({
               from: socket.id,
               signal: { type: "ice-candidate", candidate: event.candidate }
             });
-          }
-        };
-
-        // Handle remote tracks
-        peerConnection.ontrack = (event) => {
-          const [remoteStream] = event.streams;
-          // Find the remote video element and set its srcObject
-          const remoteVideo = document.querySelector(`[data-user-id="${userId}"]`);
-          if (remoteVideo && remoteStream) {
-            remoteVideo.srcObject = remoteStream;
           }
         };
 
