@@ -12,9 +12,6 @@ services:
         value: production
       - key: PORT
         value: 3001
-    routes:
-      - type: web
-        plan: free
 
   - type: web
     name: virtual-event-frontend
