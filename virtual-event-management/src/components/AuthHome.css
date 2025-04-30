@@ -1,0 +1,155 @@
+.auth-component .auth-container,
+.home-component .auth-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.auth-component .auth-header,
+.home-component .auth-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.auth-component .auth-header h1,
+.home-component .auth-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.auth-component .auth-form,
+.home-component .auth-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.auth-component .form-group,
+.home-component .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-component .form-group label,
+.home-component .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #34495e;
+    font-weight: 500;
+}
+
+.auth-component .form-group input,
+.home-component .form-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.auth-component .form-group input:focus,
+.home-component .form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.auth-component .auth-button,
+.home-component .auth-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.auth-component .auth-button:hover,
+.home-component .auth-button:hover {
+    background-color: #2980b9;
+}
+
+.auth-component .auth-button-container,
+.home-component .auth-button-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: space-between;
+}
+
+.auth-component .auth-switch,
+.home-component .auth-switch {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-component .auth-switch p,
+.home-component .auth-switch p {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+.auth-component .auth-switch button,
+.home-component .auth-switch button {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.auth-component .auth-switch button:hover,
+.home-component .auth-switch button:hover {
+    text-decoration: underline;
+}
+
+.auth-component .error-message,
+.home-component .error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.auth-component .success-message,
+.home-component .success-message {
+    color: #27ae60;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+@media (max-width: 480px) {
+    .auth-component .auth-container,
+    .home-component .auth-container {
+        padding: 10px;
+    }
+    
+    .auth-component .auth-form,
+    .home-component .auth-form {
+        padding: 20px;
+    }
+    
+    .auth-component .auth-header h1,
+    .home-component .auth-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Notification Styles */
+.MuiSnackbarContent-root {
+    background-color: rgba(30, 30, 30, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    color: white !important;
+    font-weight: 500 !important;
+}

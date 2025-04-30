@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Event Room</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <h1>Room Controls</h1>
+    <video id="videoElement" autoplay playsinline></video>
+    <div>
+        <button id="muteButton">Mute</button>
+        <button id="cameraButton">Turn Camera Off</button>
+        <button id="leaveButton">Leave Room</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoElement = document.getElementById('videoElement');
+            const muteButton = document.getElementById('muteButton');
+            const cameraButton = document.getElementById('cameraButton');
+            const leaveButton = document.getElementById('leaveButton');
+
+            let localStream;
+            let audioEnabled = true;
+            let videoEnabled = true;
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then((stream) => {
+                    localStream = stream;
+                    videoElement.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing media devices.', error);
+                    alert('Could not access camera or microphone. Please check your permissions.');
+                });
+
+            muteButton.addEventListener('click', () => {
+                if (localStream) {
+                    audioEnabled = !audioEnabled;
+                    localStream.getAudioTracks()[0].enabled = audioEnabled;
+                    muteButton.textContent = audioEnabled ? 'Mute' : 'Unmute';
+                }
+            });
+
+            cameraButton.addEventListener('click', () => {
+                if (localStream) {
+                    videoEnabled = !videoEnabled;
+                    localStream.getVideoTracks()[0].enabled = videoEnabled;
+                    cameraButton.textContent = videoEnabled ? 'Turn Camera Off' : 'Turn Camera On';
+                }
+            });
+
+            leaveButton.addEventListener('click', () => {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                }
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>
+

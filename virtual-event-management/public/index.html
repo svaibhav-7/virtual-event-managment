@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Event Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <div id="root">
+        <h1>Virtual Event Management</h1>
+        <p>Seamlessly manage your online events.</p>
+        <input type="text" id="roomIdInput" placeholder="Enter Room ID">
+        <button id="joinRoomButton">Join Room</button>
+        <button id="createRoomButton">Create a New Room</button>
+    </div>
+
+    <script>
+        document.getElementById('createRoomButton').addEventListener('click', () => {
+            alert('Create Room functionality coming soon!');
+        });
+
+        document.getElementById('joinRoomButton').addEventListener('click', () => {
+            const roomId = document.getElementById('roomIdInput').value.trim();
+            if (roomId) {
+                window.location.href = `room.html?roomId=${roomId}`;
+            } else {
+                alert('Please enter a Room ID to join!');
+            }
+        });
+    </script>
+</body>
+</html>
+
