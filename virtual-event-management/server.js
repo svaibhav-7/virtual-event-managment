@@ -53,7 +53,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, 'build')));
 
 // API Routes
 app.post('/api/signup', async (req, res) => {
@@ -219,7 +219,7 @@ io.on("connection", (socket) => {
 
 // Serve React app - This should be after API routes
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, '../build/index.html'));
+    res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
