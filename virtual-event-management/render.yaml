@@ -2,24 +2,36 @@ services:
   - type: web
     name: virtual-event-backend
     env: node
-    region: oregon
+    plan: free
     buildCommand: cd server && npm install
     startCommand: cd server && node server.js
     envVars:
       - key: MONGODB_URI
         sync: false
+      - key: NODE_ENV
+        value: production
       - key: PORT
         value: 3001
-    autoDeploy: true
+    routes:
+      - type: web
+        plan: free
 
   - type: web
     name: virtual-event-frontend
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./build
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: REACT_APP_BACKEND_URL
         fromService:
           name: virtual-event-backend
           type: web
-          property: host
+          property: url
